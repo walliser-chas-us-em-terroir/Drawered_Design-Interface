@@ -1,0 +1,128 @@
+/* ============================================================
+   DRAWERED — CSS PUREMENT FONCTIONNEL (pas de design)
+   Uniquement : positionnement, plein écran, flyouts, modal.
+   Le design viendra dans une étape ultérieure.
+   ============================================================ */
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+/* ---- Page d'accueil ---- */
+.home {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 24px;
+}
+.start-link {
+  display: inline-block;
+  padding: 8px 16px;
+  border: 1px solid #000;
+}
+
+/* ---- App : plan de travail plein écran ---- */
+.app-body {
+  margin: 0;
+  overflow: hidden;
+}
+#canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+}
+
+/* ---- Barre d'outils (haut gauche) ---- */
+.toolbar {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  z-index: 10;
+}
+.toolbar button.active {
+  outline: 2px solid #000;
+}
+.sep {
+  width: 12px;
+}
+
+/* ---- Outil + flyout qui s'ouvre à sa droite ---- */
+.tool-wrap {
+  position: relative;
+}
+.flyout {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  margin-left: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid #000;
+  white-space: nowrap;
+}
+
+/* ---- Pastilles de couleur ---- */
+.swatch {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid #000;
+  cursor: pointer;
+}
+.swatch.selected {
+  outline: 2px solid #000;
+  outline-offset: 1px;
+}
+
+/* ---- Zoom (bas gauche) ---- */
+.zoom-bar {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 10;
+}
+
+/* ---- Info (bas droite) ---- */
+.info-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  z-index: 10;
+}
+
+/* ---- Modal ---- */
+.modal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 20;
+}
+.modal-box {
+  max-width: 420px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #000;
+}
+
+/* ---- Utilitaire ---- */
+.hidden {
+  display: none;
+}

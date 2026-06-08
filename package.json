@@ -1,0 +1,12 @@
+{
+  "name": "drawered-design-interface",
+  "version": "0.1.0",
+  "description": "Application de dessin minimaliste DRAWERED + archive des prompts.",
+  "private": true,
+  "scripts": {
+    "capture": "node archive/capture.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.60.0"
+  }
+}
