@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DRAWERED – App</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    #drawing-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<div class="page-grid">
+
+  <!-- LOGO -->
+  <a href="index.html" class="logo app-logo">DRAWERED</a>
+
+  <!-- TOOLBAR LEFT : undo · redo  |  download · clear -->
+  <div class="app-toolbar-l">
+    <button class="btn icon" id="btn-undo"     title="Annuler (⌘Z)">
+      <i class="ri-arrow-go-back-line"></i>
+    </button>
+    <button class="btn icon" id="btn-redo"     title="Rétablir (⌘Y)">
+      <i class="ri-arrow-go-forward-line"></i>
+    </button>
+    <div class="sep"></div>
+    <button class="btn icon" id="btn-download" title="Télécharger PNG">
+      <i class="ri-download-2-line"></i>
+    </button>
+    <button class="btn icon red" id="btn-clear" title="Effacer tout">
+      <i class="ri-delete-bin-2-line"></i>
+    </button>
+  </div>
+
+  <!-- TOOLBAR RIGHT : brush · eraser · fill  |  swatches -->
+  <div class="app-toolbar-r">
+    <!-- Outils -->
+    <button class="btn icon active-tool" id="btn-brush"  title="Pinceau (B)">
+      <i class="ri-brush-line"></i>
+    </button>
+    <button class="btn icon" id="btn-eraser" title="Gomme (E)">
+      <i class="ri-eraser-line"></i>
+    </button>
+    <button class="btn icon" id="btn-fill"   title="Remplir le fond (F)">
+      <i class="ri-paint-fill"></i>
+    </button>
+    <div class="sep"></div>
+    <!-- Swatches couleurs inline -->
+    <div class="toolbar-palette" id="toolbar-palette"></div>
+  </div>
+
+  <!-- CANVAS + TOOL PANEL -->
+  <div class="app-canvas-area" id="canvas-wrapper">
+    <canvas id="drawing-canvas"></canvas>
+
+    <!-- Panel taille (pinceau / gomme) -->
+    <div class="tool-panel" id="tool-panel">
+      <div class="brush-preview">
+        <div class="brush-dot" id="brush-dot"></div>
+      </div>
+      <input type="range" class="brush-slider-v" id="brush-size-slider"
+             min="1" max="60" value="8" />
+      <span class="brush-size-label" id="brush-size-value">8</span>
+    </div>
+  </div>
+
+  <!-- STATUS LEFT -->
+  <div class="app-status-l">
+    <button id="btn-fullscreen">
+      <i class="ri-fullscreen-line"></i> FULL SCREEN
+    </button>
+    <span class="status-sep">|</span>
+    <button class="zoom-btn" id="btn-zoom-out" title="Dézoomer">
+      <i class="ri-zoom-out-line"></i>
+    </button>
+    <span id="zoom-label">100%</span>
+    <button class="zoom-btn" id="btn-zoom-in" title="Zoomer">
+      <i class="ri-zoom-in-line"></i>
+    </button>
+    <span class="status-sep">|</span>
+    <span class="meta" id="coords-label">– , –</span>
+  </div>
+
+  <!-- STATUS RIGHT -->
+  <div class="app-status-r">
+    <span class="meta" id="tool-label">PINCEAU</span>
+    <span class="status-sep">|</span>
+    <a href="info.html" class="nav-link">INFO</a>
+  </div>
+
+</div><!-- /page-grid -->
+
+<script>
+'use strict';
+
+/* ── Canvas ──────────────────────────────────────────────────── */
+const canvas  = document.getElementById('drawing-canvas');
+const ctx     = canvas.getContext('2d');
+const wrapper = document.getElementById('canvas-wrapper');
+
+const DPR = window.devicePixelRatio || 1;
+let zoom  = 1.0;
+let cssW  = 0, cssH = 0;
+
+let isDrawing = false;
+let lastX = 0, lastY = 0;
+let tool       = 'pen';
+let brushColor = '#00D4FF';
+let brushSize  = 8;
+
+let strokeCanvas = null, strokeCtx = null;
+let gridCanvas   = null, gridCtx   = null;
+
+const undoStack = [], redoStack = [];
+const MAX_STACK = 40;
+
+/* ── Resize ──────────────────────────────────────────────────── */
+function resizeCanvas() {
+  const rect = wrapper.getBoundingClientRect();
+  cssW = rect.width;
+  cssH = rect.height;
+  canvas.width  = Math.round(cssW * DPR);
+  canvas.height = Math.round(cssH * DPR);
+  canvas.style.width  = cssW + 'px';
+  canvas.style.height = cssH + 'px';
+  ctx.scale(DPR, DPR);
+  ctx.lineCap = ctx.lineJoin = 'round';
+  rebuildGridCanvas();
+  ensureStrokeCanvas(true);
+  redrawAll();
+}
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('load',   () => { resizeCanvas(); saveState(); });
+
+/* ── Dot grid ────────────────────────────────────────────────── */
+const BASE_SPACING = 26;
+function rebuildGridCanvas() {
+  gridCanvas = document.createElement('canvas');
+  gridCanvas.width  = canvas.width;
+  gridCanvas.height = canvas.height;
+  gridCtx = gridCanvas.getContext('2d');
+  gridCtx.scale(DPR, DPR);
+  paintGrid(gridCtx);
+}
+function paintGrid(gc) {
+  gc.clearRect(0, 0, cssW, cssH);
+  const sp = BASE_SPACING * zoom;
+  const r  = Math.max(0.8, zoom * 0.9);
+  gc.fillStyle = document.body.classList.contains('light-mode')
+    ? 'rgba(0,0,0,0.14)' : 'rgba(255,255,255,0.09)';
+  for (let x = sp/2; x < cssW; x += sp)
+    for (let y = sp/2; y < cssH; y += sp) {
+      gc.beginPath(); gc.arc(x, y, r, 0, Math.PI*2); gc.fill();
+    }
+}
+function redrawGrid() {
+  if (!gridCtx) return;
+  gridCtx.clearRect(0, 0, cssW, cssH);
+  paintGrid(gridCtx);
+}
+
+/* ── Stroke canvas ───────────────────────────────────────────── */
+function ensureStrokeCanvas(reset = false) {
+  if (!strokeCanvas || reset) {
+    const prev = strokeCanvas;
+    strokeCanvas = document.createElement('canvas');
+    strokeCanvas.width  = canvas.width;
+    strokeCanvas.height = canvas.height;
+    strokeCtx = strokeCanvas.getContext('2d');
+    strokeCtx.scale(DPR, DPR);
+    strokeCtx.lineCap = strokeCtx.lineJoin = 'round';
+    if (prev && !reset) strokeCtx.drawImage(prev, 0, 0);
+  }
+}
+function redrawAll() {
+  ctx.clearRect(0, 0, cssW, cssH);
+  if (gridCanvas)   ctx.drawImage(gridCanvas,   0, 0, cssW, cssH);
+  if (strokeCanvas) ctx.drawImage(strokeCanvas, 0, 0, cssW, cssH);
+}
+
+/* ── Undo / Redo ─────────────────────────────────────────────── */
+function saveState() {
+  if (!strokeCanvas) return;
+  undoStack.push(strokeCanvas.toDataURL());
+  if (undoStack.length > MAX_STACK) undoStack.shift();
+  redoStack.length = 0;
+}
+function restoreState(url) {
+  const img = new Image();
+  img.onload = () => {
+    ensureStrokeCanvas();
+    strokeCtx.clearRect(0, 0, cssW, cssH);
+    strokeCtx.drawImage(img, 0, 0, cssW, cssH);
+    redrawAll();
+  };
+  img.src = url;
+}
+function undo() {
+  if (undoStack.length <= 1) return;
+  redoStack.push(undoStack.pop());
+  restoreState(undoStack[undoStack.length - 1]);
+}
+function redo() {
+  if (!redoStack.length) return;
+  const s = redoStack.pop();
+  undoStack.push(s);
+  restoreState(s);
+}
+
+/* ── Zoom ────────────────────────────────────────────────────── */
+function setZoom(v) {
+  zoom = Math.min(Math.max(v, 0.2), 5.0);
+  document.getElementById('zoom-label').textContent = Math.round(zoom * 100) + '%';
+  redrawGrid(); redrawAll();
+}
+document.getElementById('btn-zoom-in').addEventListener('click',  () => setZoom(zoom + 0.1));
+document.getElementById('btn-zoom-out').addEventListener('click', () => setZoom(zoom - 0.1));
+
+/* ── Dessin ──────────────────────────────────────────────────── */
+function getPos(e) {
+  const r = canvas.getBoundingClientRect();
+  const s = e.touches ? e.touches[0] : e;
+  return { x: s.clientX - r.left, y: s.clientY - r.top };
+}
+function startDraw(e) {
+  e.preventDefault();
+  isDrawing = true;
+  const p = getPos(e); lastX = p.x; lastY = p.y;
+  ensureStrokeCanvas();
+}
+function draw(e) {
+  const p = getPos(e);
+  updateCoords(p.x, p.y);
+  if (!isDrawing) return;
+  e.preventDefault();
+  ensureStrokeCanvas();
+  strokeCtx.globalCompositeOperation = tool === 'eraser' ? 'destination-out' : 'source-over';
+  strokeCtx.strokeStyle = brushColor;
+  strokeCtx.lineWidth   = brushSize * zoom;
+  strokeCtx.beginPath();
+  strokeCtx.moveTo(lastX, lastY);
+  strokeCtx.lineTo(p.x, p.y);
+  strokeCtx.stroke();
+  lastX = p.x; lastY = p.y;
+  redrawAll();
+}
+function endDraw() {
+  if (!isDrawing) return;
+  isDrawing = false; saveState();
+}
+canvas.addEventListener('mousedown',  startDraw);
+canvas.addEventListener('mousemove',  draw);
+canvas.addEventListener('mouseup',    endDraw);
+canvas.addEventListener('mouseleave', endDraw);
+canvas.addEventListener('touchstart', startDraw, { passive: false });
+canvas.addEventListener('touchmove',  draw,      { passive: false });
+canvas.addEventListener('touchend',   endDraw);
+canvas.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  setZoom(zoom + (e.deltaY > 0 ? -0.05 : 0.05));
+}, { passive: false });
+function updateCoords(x, y) {
+  document.getElementById('coords-label').textContent =
+    Math.round(x) + ' , ' + Math.round(y);
+}
+
+/* ── Tool panel (taille pinceau/gomme) ──────────────────────── */
+const toolPanel   = document.getElementById('tool-panel');
+const brushDot    = document.getElementById('brush-dot');
+const sizeSlider  = document.getElementById('brush-size-slider');
+const sizeLabel   = document.getElementById('brush-size-value');
+
+let panelOwner = null; // 'pen' | 'eraser' | null
+
+function updateBrushPreview() {
+  const d = Math.min(brushSize * 2.2, 46);
+  brushDot.style.width  = d + 'px';
+  brushDot.style.height = d + 'px';
+  brushDot.style.background = tool === 'eraser'
+    ? 'rgba(255,255,255,0.4)' : brushColor;
+}
+
+function openPanel(owner) {
+  panelOwner = owner;
+  toolPanel.classList.add('open');
+  updateBrushPreview();
+}
+function closePanel() {
+  panelOwner = null;
+  toolPanel.classList.remove('open');
+}
+
+sizeSlider.addEventListener('input', () => {
+  brushSize = parseInt(sizeSlider.value, 10);
+  sizeLabel.textContent = brushSize;
+  updateBrushPreview();
+});
+
+/* ── Boutons outil ───────────────────────────────────────────── */
+const btnBrush  = document.getElementById('btn-brush');
+const btnEraser = document.getElementById('btn-eraser');
+const btnFill   = document.getElementById('btn-fill');
+const toolLbl   = document.getElementById('tool-label');
+
+function setTool(t) {
+  tool = t;
+  btnBrush.classList.toggle('active-tool',  t === 'pen');
+  btnEraser.classList.toggle('active-tool', t === 'eraser');
+  canvas.style.cursor = t === 'eraser' ? 'cell' : 'crosshair';
+  toolLbl.textContent = t === 'eraser' ? 'GOMME' : 'PINCEAU';
+  updateBrushPreview();
+}
+
+btnBrush.addEventListener('click', () => {
+  setTool('pen');
+  if (panelOwner === 'pen') closePanel();
+  else openPanel('pen');
+});
+
+btnEraser.addEventListener('click', () => {
+  setTool('eraser');
+  if (panelOwner === 'eraser') closePanel();
+  else openPanel('eraser');
+});
+
+btnFill.addEventListener('click', () => {
+  ensureStrokeCanvas();
+  strokeCtx.globalCompositeOperation = 'destination-over';
+  strokeCtx.fillStyle = brushColor;
+  strokeCtx.fillRect(0, 0, cssW, cssH);
+  strokeCtx.globalCompositeOperation = 'source-over';
+  redrawAll(); saveState();
+});
+
+/* Fermer panel si clic hors panel + hors boutons outil */
+document.addEventListener('click', (e) => {
+  if (toolPanel.classList.contains('open') &&
+      !toolPanel.contains(e.target) &&
+      e.target !== btnBrush && !btnBrush.contains(e.target) &&
+      e.target !== btnEraser && !btnEraser.contains(e.target)) {
+    closePanel();
+  }
+});
+
+/* ── Actions toolbar ─────────────────────────────────────────── */
+document.getElementById('btn-download').addEventListener('click', () => {
+  const exp = document.createElement('canvas');
+  exp.width = canvas.width; exp.height = canvas.height;
+  const ec = exp.getContext('2d');
+  if (gridCanvas)   ec.drawImage(gridCanvas,   0, 0);
+  if (strokeCanvas) ec.drawImage(strokeCanvas, 0, 0);
+  const a = document.createElement('a');
+  a.download = 'drawered.png';
+  a.href = exp.toDataURL('image/png');
+  a.click();
+});
+
+document.getElementById('btn-clear').addEventListener('click', () => {
+  if (!confirm('Effacer tout le dessin ?')) return;
+  ensureStrokeCanvas();
+  strokeCtx.clearRect(0, 0, cssW, cssH);
+  redrawAll(); saveState();
+});
+
+document.getElementById('btn-undo').addEventListener('click', undo);
+document.getElementById('btn-redo').addEventListener('click', redo);
+
+document.getElementById('btn-fullscreen').addEventListener('click', () => {
+  if (!document.fullscreenElement)
+    document.documentElement.requestFullscreen().catch(() => {});
+  else document.exitFullscreen();
+});
+
+/* ── Palette couleurs inline ─────────────────────────────────── */
+const COLORS = [
+  '#00D4FF','#FF2D78','#73DA41','#FFEA00',
+  '#FF6B00','#C800FF','#FFFFFF','#000000'
+];
+const tbPal = document.getElementById('toolbar-palette');
+
+COLORS.forEach(c => {
+  const sw = document.createElement('div');
+  sw.className = 'tb-swatch';
+  sw.style.background = c;
+  sw.title = c;
+  if (c === brushColor) sw.classList.add('selected');
+  sw.addEventListener('click', () => {
+    setColor(c);
+    document.querySelectorAll('.tb-swatch').forEach(s => s.classList.remove('selected'));
+    sw.classList.add('selected');
+  });
+  tbPal.appendChild(sw);
+});
+
+function setColor(c) {
+  brushColor = c;
+  // Si on était en gomme, revenir au pinceau
+  if (tool === 'eraser') setTool('pen');
+  updateBrushPreview();
+}
+
+/* ── Clavier ─────────────────────────────────────────────────── */
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey || e.metaKey) {
+    if (e.key === 'z') { e.preventDefault(); undo(); }
+    if (e.key === 'y') { e.preventDefault(); redo(); }
+  } else {
+    if (e.key === 'b' || e.key === 'B') btnBrush.click();
+    if (e.key === 'e' || e.key === 'E') btnEraser.click();
+    if (e.key === 'f' || e.key === 'F') btnFill.click();
+  }
+});
+</script>
+</body>
+</html>
