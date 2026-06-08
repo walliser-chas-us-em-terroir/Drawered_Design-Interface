@@ -1,8 +1,51 @@
 /* ============================================================
-   DRAWERED — CSS PUREMENT FONCTIONNEL (pas de design)
-   Uniquement : positionnement, plein écran, flyouts, modal.
-   Le design viendra dans une étape ultérieure.
+   DRAWERED — Design system (instructions-2.md / Figma)
+   Boutons parallélogrammes, 3 thèmes (LIGHT/DARK/SEXY),
+   polices Elliot Swonger + Maven Pro.
    ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400;500;700&display=swap');
+
+@font-face {
+  font-family: 'Elliot Swonger';
+  src: url('elliot_swonger.TTF') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+/* ---- Thèmes (tokens d'instructions-2.md) ------------------ */
+:root,
+[data-theme='dark'] {
+  --g1: #586E4D;
+  --g2: #4B9826;
+  --g3: #73DA41;
+  --g4: #243F27;
+  --bg: #1C1C1C;
+  --fg: #F3F3F3;
+}
+[data-theme='light'] {
+  --g1: #4B9826;
+  --g2: #586E4D;
+  --g3: #2E6713;
+  --g4: #73DA41;
+  --bg: #F3F3F3;
+  --fg: #1C1C1C;
+}
+[data-theme='sexy'] {
+  --g1: #6E4D4D;
+  --g2: #982626;
+  --g3: #DA4141;
+  --g4: #3F2424;
+  --bg: #230202;
+  --fg: #F4E3E3;
+}
+
+:root {
+  --skew: -15deg;
+  --unskew: 15deg;
+  --btn-h: 48px;
+  --btn-w: 74px;
+}
 
 * { box-sizing: border-box; }
 
@@ -10,119 +53,347 @@ html, body {
   margin: 0;
   padding: 0;
   height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Maven Pro', sans-serif;
 }
 
-/* ---- Page d'accueil ---- */
-.home {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 24px;
-}
-.start-link {
-  display: inline-block;
-  padding: 8px 16px;
-  border: 1px solid #000;
-}
-
-/* ---- App : plan de travail plein écran ---- */
-.app-body {
+/* ---- Typographie (spec instructions-2.md) ----------------- */
+.logo {
+  font-family: 'Elliot Swonger', 'Maven Pro', sans-serif;
+  font-size: 65px;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: -2.6px;
+  text-transform: uppercase;
+  color: var(--g3);
   margin: 0;
-  overflow: hidden;
 }
-#canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: block;
+h1 {
+  font-size: 40px; font-weight: 500; line-height: 90%;
+  letter-spacing: -2px; text-transform: uppercase; margin: 0;
+}
+h2 {
+  font-size: 25px; font-weight: 500; line-height: 100%;
+  letter-spacing: -1.25px; text-transform: uppercase; margin: 0;
+}
+p { font-size: 16px; font-weight: 400; line-height: 1.4; }
+
+/* ============================================================
+   Bouton parallélogramme générique
+   ============================================================ */
+.btn {
+  position: relative;
+  width: var(--btn-w);
+  height: var(--btn-h);
+  padding: 0;
+  border: 2px solid var(--g4);
+  background: var(--g3);
+  transform: skewX(var(--skew));
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35), inset 0 2px 0 rgba(255, 255, 255, 0.22);
+  cursor: pointer;
+  transition: background 0.12s, box-shadow 0.12s, transform 0.06s;
+}
+/* le contenu est dé-incliné pour rester droit */
+.btn > * {
+  transform: skewX(var(--unskew));
+}
+.btn:hover {
+  background: var(--g4);
+}
+.btn:hover .ico { background: var(--g3); }
+
+.btn:active {
+  transform: skewX(var(--skew)) translateY(2px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35), inset 0 2px 4px rgba(0, 0, 0, 0.35);
+}
+/* outil sélectionné (pinceau / gomme actif) : enfoncé + liseré vif */
+.btn.active {
+  background: var(--g4);
+  box-shadow: 0 0 0 2px var(--g3), inset 0 2px 5px rgba(0, 0, 0, 0.4);
+}
+.btn.active .ico { background: var(--g3); }
+
+.btn:disabled,
+.btn.disabled {
+  opacity: 0.5;
+  cursor: default;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
 }
 
-/* ---- Barre d'outils (haut gauche) ---- */
+/* Icône en masque SVG (recolorée par background-color) */
+.ico {
+  display: block;
+  width: 24px;
+  height: 22px;
+  margin: 0 auto;
+  background: var(--g4);
+  -webkit-mask: var(--icon) center / contain no-repeat;
+  mask: var(--icon) center / contain no-repeat;
+}
+/* Icônes inlinées en base64 (les mask-image SVG externes sont bloqués en file://) */
+.ico-brush  { --icon: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjIiIGhlaWdodD0iMTkiIHZpZXdCb3g9IjAgMCAyMiAxOSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE0LjQ1NjUgNy41MTQyNkwxNC4zMTQ0IDcuMzcyMkMxMy42NjYxIDYuNzQ3MTkgMTIuODU0OSA2LjI3MjkyIDExLjkyMzUgNi4wMjMzNUM5LjAxNjggNS4yNDQ1IDYuMjI1NDEgNi44OTE5NiA1LjQzMTg1IDkuODUzNTNDNS4zODkwMSAxMC4wMTM0IDUuMzY1NzQgMTAuMTkyOSA1LjMyODUgMTAuNjQ0M0M1LjE3NDIzIDEyLjUxNDQgNC43MzQ0OSAxMy45MDg5IDMuNTI4NiAxNS4zMjM0QzUuNzg4NDcgMTYuMjExOSA4LjQ2NTcyIDE2LjgzNzggMTAuNTAxNiAxNi44Mzc4QzEyLjk3MDIgMTYuODM3OCAxNS4xNjQ0IDE1LjE3ODYgMTUuODEyNiAxMi43NTk0QzE2LjMzMDYgMTAuODI2MSAxNS43NTEzIDguODU3MzMgMTQuNDU2NSA3LjUxNDI2Wk0xMi4yODg2IDQuMDUyMjRMMTcuMjI3OCAwLjIxMDY1MkMxNy42MjU5IC0wLjA5ODk2NzcgMTguMTkyMiAtMC4wNjM3MDc2IDE4LjU0ODggMC4yOTI5MDJMMjEuNTQzIDMuMjg3MUMyMS44OTk3IDMuNjQzNzEgMjEuOTM0OSA0LjIxMDA1IDIxLjYyNTMgNC42MDgxNEwxNy43ODQ3IDkuNTQ2MDNDMTguMDc3OCAxMC43MzQzIDE4LjA4MzYgMTIuMDExMyAxNy43NDQ0IDEzLjI3NzFDMTYuODQ2MyAxNi42Mjg5IDEzLjgxNDIgMTguODM3OCAxMC41MDE2IDE4LjgzNzhDNyAxOC44Mzc4IDIuNSAxNy4zMzU5IDAgMTUuODM1OUMzLjk3OTc4IDEyLjgzNTkgMy4wNDcyMiAxMS4wMjU3IDMuNSA5LjMzNTkzQzQuNTU4NDMgNS4zODU4MSA4LjM0MjI0IDMuMDc4NTggMTIuMjg4NiA0LjA1MjI0Wk0xNS43MDE1IDUuOTMwODRDMTUuNzY3MyA1Ljk5NDI5IDE1LjgzMTkgNi4wNTg4NyAxNS44OTUyIDYuMTI0NTZMMTcuMDI5NyA3LjI1OTA3TDE5LjUwNDYgNC4wNzcwOUwxNy43NTg5IDIuMzMxMzNMMTQuNTc2OSA0LjgwNjIxTDE1LjcwMTUgNS45MzA4NFoiIGZpbGw9IiMyNDNGMjciLz4KPC9zdmc+Cg=='); }
+.ico-eraser { --icon: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjEiIGhlaWdodD0iMTkiIHZpZXdCb3g9IjAgMCAyMSAxOSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTcuMzYzOTYgNi42NTY4NkwyLjQxNDIxIDExLjYwNjZMNy42MDg1MyAxNi44MDA5TDguNzc4MTcgMTYuODAwMlYxNi43OTlIOS45NDk3MkwxMy43Mjc5IDEzLjAyMDhMNy4zNjM5NiA2LjY1Njg2Wk04Ljc3ODE3IDUuMjQyNjRMMTUuMTQyMSAxMS42MDY2TDE3Ljk3MDUgOC43NzgxN0wxMS42MDY2IDIuNDE0MjJMOC43NzgxNyA1LjI0MjY0Wk0xMi43NzgyIDE2Ljc5OUgxOS43NzgyVjE4Ljc5OUgxMC43NzgyTDYuNzgwNjEgMTguODAxNUwwLjI5Mjg5IDEyLjMxMzdDLTAuMDk3NjMgMTEuOTIzMiAtMC4wOTc2MyAxMS4yOTAxIDAuMjkyODkgMTAuODk5NUwxMC44OTk1IDAuMjkyODk3QzExLjI5IC0wLjA5NzYzMjUgMTEuOTIzMiAtMC4wOTc2MzI1IDEyLjMxMzcgMC4yOTI4OTdMMjAuMDkxOSA4LjA3MTA3QzIwLjQ4MjQgOC40NjE1NyAyMC40ODI0IDkuMDk0NzcgMjAuMDkxOSA5LjQ4NTI3TDEyLjc3ODIgMTYuNzk5WiIgZmlsbD0iIzI0M0YyNyIvPgo8L3N2Zz4K'); }
+.ico-export { --icon: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTkiIHZpZXdCb3g9IjAgMCAxOCAxOSIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTAgMTdIMThWMTlIMFYxN1pNMTAgMTEuMTcxNkwxNi4wNzExIDUuMTAwNUwxNy40ODUzIDYuNTE0NzJMOSAxNUwwLjUxNDcyIDYuNTE0NzJMMS45Mjg5MyA1LjEwMDVMOCAxMS4xNzE2VjBIMTBWMTEuMTcxNloiIGZpbGw9IiMyNDNGMjciLz4KPC9zdmc+Cg=='); }
+.ico-undo   { --icon: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAxOSAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMuODI4NDMgNS45NDk3NUw2LjM2Mzk2IDguNDg1MjlMNC45NDk3NSA5Ljg5OTVMMCA0Ljk0OTc1TDQuOTQ5NzUgMEw2LjM2Mzk2IDEuNDE0MjJMMy44Mjg0MyAzLjk0OTc1SDExQzE1LjQxODMgMy45NDk3NSAxOSA3LjUzMTQ3IDE5IDExLjk0OThDMTkgMTYuMzY4IDE1LjQxODMgMTkuOTQ5OCAxMSAxOS45NDk4SDJWMTcuOTQ5OEgxMUMxNC4zMTM3IDE3Ljk0OTggMTcgMTUuMjYzNSAxNyAxMS45NDk4QzE3IDguNjM2MDQgMTQuMzEzNyA1Ljk0OTc1IDExIDUuOTQ5NzVIMy44Mjg0M1oiIGZpbGw9IiMyNDNGMjciLz4KPC9zdmc+Cg=='); }
+.ico-redo   { --icon: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAxOSAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE1LjE3MTYgNS45NDk3NUwxMi42MzYgOC40ODUyOUwxNC4wNTAzIDkuODk5NUwxOSA0Ljk0OTc1TDE0LjA1MDMgMEwxMi42MzYgMS40MTQyMkwxNS4xNzE2IDMuOTQ5NzVIOEMzLjU4MTcgMy45NDk3NSAwIDcuNTMxNDcgMCAxMS45NDk4QzAgMTYuMzY4IDMuNTgxNyAxOS45NDk4IDggMTkuOTQ5OEgxN1YxNy45NDk4SDhDNC42ODYzIDE3Ljk0OTggMiAxNS4yNjM1IDIgMTEuOTQ5OEMyIDguNjM2MDQgNC42ODYzIDUuOTQ5NzUgOCA1Ljk0OTc1SDE1LjE3MTZaIiBmaWxsPSIjMjQzRjI3Ii8+Cjwvc3ZnPgo='); }
+.ico-clear  { --icon: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTMiIGhlaWdodD0iMTMiIHZpZXdCb3g9IjAgMCAxMyAxMyIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTYuMzYzOTYgNC45NDk3OEwxMS4zMTM4IDBMMTIuNzI4IDEuNDE0MjFMNy43NzgxNiA2LjM2Mzk4TDEyLjcyOCAxMS4zMTM3TDExLjMxMzggMTIuNzI3OUw2LjM2Mzk2IDcuNzc4MThMMS40MTQyMiAxMi43Mjc5TDAgMTEuMzEzN0w0Ljk0OTc2IDYuMzYzOThMMCAxLjQxNDIxTDEuNDE0MjIgMEw2LjM2Mzk2IDQuOTQ5NzhaIiBmaWxsPSIjOTI1ODBDIi8+Cjwvc3ZnPgo='); width: 18px; height: 18px; }
+
+/* bouton "tout effacer" : icône en teinte avertissement */
+.btn--danger .ico { background: #b5651d; }
+.btn--danger:hover { background: var(--g4); }
+.btn--danger:hover .ico { background: #e07a25; }
+
+/* Pastille couleur : parallélogramme rempli de la couleur active */
+.btn--color {
+  background: var(--current-color, #000);
+}
+.btn--color:hover { background: var(--current-color, #000); filter: brightness(1.1); }
+
+/* ============================================================
+   Mise en page de l'app
+   ============================================================ */
+.app-body { margin: 0; overflow: hidden; }
+#canvas { position: absolute; top: 0; left: 0; display: block; }
+
+/* barres d'outils */
 .toolbar {
   position: absolute;
-  top: 8px;
-  left: 8px;
+  top: 16px;
   display: flex;
   align-items: flex-start;
-  gap: 6px;
+  gap: 12px;
   z-index: 10;
 }
-.toolbar button.active {
-  outline: 2px solid #000;
-}
-.sep {
-  width: 12px;
-}
+.toolbar-left  { left: 16px; }
+.toolbar-right { right: 16px; }
 
-/* ---- Outil + flyout qui s'ouvre à sa droite ---- */
-.tool-wrap {
-  position: relative;
-}
+/* outil + flyout */
+.tool-wrap { position: relative; }
+
 .flyout {
   position: absolute;
   top: 0;
-  left: 100%;
-  margin-left: 6px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px;
-  background: #fff;
-  border: 1px solid #000;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg);
+  border: 2px solid var(--g4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   white-space: nowrap;
+  z-index: 20;
 }
+/* outils de gauche : flyout vers la droite ; outils de droite : vers la gauche */
+.toolbar-left  .flyout { left: calc(100% + 10px); }
+.toolbar-right .flyout { right: calc(100% + 10px); }
 
-/* ---- Pastilles de couleur ---- */
-.swatch {
-  width: 22px;
-  height: 22px;
-  padding: 0;
-  border: 1px solid #000;
+/* ---- Slider d'épaisseur ----------------------------------- */
+.flyout input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 160px;
+  height: 6px;
+  background: var(--g4);
+  border-radius: 3px;
+  outline: none;
+}
+.flyout input[type='range']::-webkit-slider-runnable-track {
+  height: 6px; border-radius: 3px;
+}
+.flyout input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 26px;
+  background: var(--g3);
+  border: 2px solid var(--g4);
+  transform: skewX(var(--skew));
+  cursor: pointer;
+  margin-top: -10px;
+}
+.flyout input[type='range']::-moz-range-thumb {
+  width: 18px; height: 26px;
+  background: var(--g3);
+  border: 2px solid var(--g4);
+  transform: skewX(var(--skew));
   cursor: pointer;
 }
-.swatch.selected {
-  outline: 2px solid #000;
-  outline-offset: 1px;
+.size-label {
+  min-width: 22px;
+  font-weight: 500;
+  color: var(--fg);
 }
 
-/* ---- Zoom (bas gauche) ---- */
+/* ---- Pastilles de couleur (palette) ----------------------- */
+.palette-flyout { gap: 10px; }
+.swatch {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 2px solid var(--g4);
+  transform: skewX(var(--skew));
+  cursor: pointer;
+}
+.swatch > span { display: block; width: 100%; height: 100%; }
+.swatch.selected {
+  box-shadow: 0 0 0 2px var(--g3);
+}
+
+/* ---- Zoom (bas gauche) ------------------------------------ */
 .zoom-bar {
   position: absolute;
-  bottom: 8px;
-  left: 8px;
+  bottom: 16px;
+  left: 16px;
   display: flex;
   align-items: center;
+  gap: 10px;
+  z-index: 10;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+}
+.zoom-bar button {
+  width: 30px; height: 30px;
+  border: 2px solid var(--g4);
+  background: var(--g3);
+  color: var(--g4);
+  font-size: 18px; line-height: 1;
+  transform: skewX(var(--skew));
+  cursor: pointer;
+}
+.zoom-bar button > span { display: block; transform: skewX(var(--unskew)); }
+#zoom-label { color: var(--fg); min-width: 48px; text-align: center; }
+
+/* ---- Info (bas droite) ------------------------------------ */
+.info-btn {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  z-index: 10;
+  background: none;
+  border: none;
+  color: var(--g3);
+  font-family: 'Maven Pro', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.info-btn:hover { text-decoration: underline; }
+
+/* ---- Sélecteur de thème (haut centre) --------------------- */
+.theme-switch {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
   gap: 6px;
   z-index: 10;
 }
-
-/* ---- Info (bas droite) ---- */
-.info-btn {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  z-index: 10;
+.theme-switch button {
+  border: 2px solid var(--g4);
+  background: transparent;
+  color: var(--fg);
+  font-family: 'Maven Pro', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  transform: skewX(var(--skew));
+  cursor: pointer;
+}
+.theme-switch button > span { display: block; transform: skewX(var(--unskew)); }
+.theme-switch button.active {
+  background: var(--g3);
+  color: var(--g4);
 }
 
-/* ---- Modal ---- */
+/* ============================================================
+   Modal info
+   ============================================================ */
 .modal {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 20;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 30;
 }
 .modal-box {
-  max-width: 420px;
-  padding: 16px;
-  background: #fff;
-  border: 1px solid #000;
+  max-width: 520px;
+  width: calc(100% - 48px);
+  padding: 28px;
+  background: var(--bg);
+  border: 2px solid var(--g4);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
 }
+.modal-box h1 { color: var(--g3); margin-bottom: 16px; }
+.modal-box p { color: var(--fg); }
+.modal-box .btn-close {
+  margin-top: 20px;
+  border: 2px solid var(--g4);
+  background: var(--g3);
+  color: var(--g4);
+  font-family: 'Maven Pro', sans-serif;
+  font-weight: 500;
+  text-transform: uppercase;
+  padding: 8px 20px;
+  transform: skewX(var(--skew));
+  cursor: pointer;
+}
+.modal-box .btn-close > span { display: block; transform: skewX(var(--unskew)); }
+
+/* ============================================================
+   Page d'accueil
+   ============================================================ */
+.home {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 48px 56px;
+  gap: 28px;
+}
+.home .logo { font-size: 72px; }
+.home-tagline {
+  max-width: 420px;
+  color: var(--g3);
+}
+.home-gallery {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  align-content: start;
+}
+.home-gallery img {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  filter: grayscale(1) brightness(0.9) sepia(1) hue-rotate(60deg) saturate(2.2);
+  border: 2px solid var(--g4);
+}
+.start-link {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 217px;
+  height: 50px;
+  background: var(--g4);
+  border: 2px solid var(--g3);
+  color: var(--g3);
+  font-family: 'Maven Pro', sans-serif;
+  font-size: 25px;
+  font-weight: 500;
+  letter-spacing: -1.25px;
+  text-transform: uppercase;
+  text-decoration: none;
+  transform: skewX(var(--skew));
+}
+.start-link > span { display: block; transform: skewX(var(--unskew)); }
+.start-link:hover { background: var(--g3); color: var(--g4); }
 
 /* ---- Utilitaire ---- */
-.hidden {
-  display: none;
-}
+.hidden { display: none; }

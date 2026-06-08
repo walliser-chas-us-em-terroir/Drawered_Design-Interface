@@ -3,8 +3,8 @@
 Application web de dessin simple, construite en **HTML / CSS / JavaScript vanilla**
 (sans framework ni étape de build).
 
-> État actuel : version **minimaliste et fonctionnelle**, **sans travail de design**.
-> L'habillage visuel (d'après les maquettes Figma du dossier `images/`) viendra dans une étape ultérieure.
+> État actuel : application fonctionnelle **habillée selon le design Figma** — boutons
+> parallélogrammes, typographie dédiée et **3 thèmes de couleur** (Light / Dark / Sexy).
 
 ## 🔗 Démo en ligne
 
@@ -21,8 +21,17 @@ Application web de dessin simple, construite en **HTML / CSS / JavaScript vanill
 - **Tout effacer** en un seul clic.
 - **Exporter** le plan de travail en **PNG** (grille + dessin).
 - **Zoom de 50 % à 200 %** (boutons − / + et libellé en bas à gauche).
-- **Plan de travail plein écran** avec une **grille en points**.
+- **Plan de travail plein écran** avec une **grille en points** (teintée selon le thème).
 - Bouton **Info** (bas droite) ouvrant une fenêtre modale.
+- **3 thèmes** (Light / Dark / Sexy) via un sélecteur en haut ; choix mémorisé (`localStorage`).
+
+## Design
+
+Habillage tiré du fichier Figma (`instructions-2.md`) :
+
+- **Boutons parallélogrammes** (inclinés) avec états et icônes SVG, déclinés selon le thème.
+- **Polices** : `Elliot Swonger` (logo, `elliot_swonger.TTF`) + `Maven Pro` (Google Fonts).
+- **Tokens couleur** : variables CSS `--g1…--g4`, `--bg`, `--fg` pilotées par `[data-theme]`.
 
 ## Structure du projet
 
@@ -30,10 +39,11 @@ Application web de dessin simple, construite en **HTML / CSS / JavaScript vanill
 .
 ├── index.html          Page d'accueil (lien START vers l'app)
 ├── app.html            Interface de l'application de dessin
-├── app.js              Logique : canvas, outils, zoom, undo/redo, export
-├── style.css           Mise en page fonctionnelle (pas de design)
+├── app.js              Logique : canvas, outils, zoom, undo/redo, export, thèmes
+├── style.css           Design system : tokens 3 thèmes, boutons, typographie
+├── elliot_swonger.TTF  Police du logo
 ├── package.json        Déclare Playwright (utilisé pour les captures d'archive)
-├── images/             Maquettes Figma et exports (référence design)
+├── links/              Maquettes, assets (dont links/assets/_icon SVG) et images
 ├── archive/            Archive des prompts (voir ci-dessous)
 └── old_version/        Ancienne version — ignorée, conservée pour référence
 ```

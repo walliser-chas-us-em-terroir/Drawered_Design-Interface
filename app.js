@@ -19,7 +19,7 @@ let gridCanvas = null, gridCtx = null;     // grille en points
 
 /* ── État outils ─────────────────────────────────────────── */
 let tool = 'brush';                 // 'brush' | 'eraser'
-let brushColor = '#000000';
+let brushColor = '#1C1C1C';
 let brushSize = 6;
 let eraserSize = 20;
 
@@ -55,11 +55,21 @@ function rebuildGrid() {
   gridCtx.scale(DPR, DPR);
   paintGrid();
 }
+function gridColor() {
+  // teinte des points dérivée du --fg du thème courant
+  const fg = getComputedStyle(document.documentElement)
+    .getPropertyValue('--fg').trim() || '#f3f3f3';
+  const m = fg.replace('#', '');
+  const r = parseInt(m.substring(0, 2), 16);
+  const g = parseInt(m.substring(2, 4), 16);
+  const b = parseInt(m.substring(4, 6), 16);
+  return `rgba(${r},${g},${b},0.16)`;
+}
 function paintGrid() {
   gridCtx.clearRect(0, 0, cssW, cssH);
   const sp = BASE_SPACING * zoom;
   const r = Math.max(0.8, zoom * 0.9);
-  gridCtx.fillStyle = 'rgba(0,0,0,0.18)';
+  gridCtx.fillStyle = gridColor();
   for (let x = sp / 2; x < cssW; x += sp)
     for (let y = sp / 2; y < cssH; y += sp) {
       gridCtx.beginPath();
@@ -223,11 +233,16 @@ eraserSlider.addEventListener('input', () => {
 });
 
 /* ── Palette : 5 couleurs, une seule sélection ───────────── */
-const COLORS = ['#000000', '#e23b3b', '#2f6fd1', '#2faa4a', '#f2b705'];
+const COLORS = ['#1C1C1C', '#e23b3b', '#2f6fd1', '#73DA41', '#f2b705'];
+function updateColorButton() {
+  btnPalette.style.setProperty('--current-color', brushColor);
+}
 COLORS.forEach((c) => {
   const sw = document.createElement('button');
   sw.className = 'swatch';
-  sw.style.background = c;
+  const fill = document.createElement('span');
+  fill.style.background = c;
+  sw.appendChild(fill);
   if (c === brushColor) sw.classList.add('selected');
   sw.addEventListener('click', () => {
     brushColor = c;
@@ -235,9 +250,11 @@ COLORS.forEach((c) => {
     panelPalette.querySelectorAll('.swatch')
       .forEach((s) => s.classList.remove('selected'));
     sw.classList.add('selected');
+    updateColorButton();
   });
   panelPalette.appendChild(sw);
 });
+updateColorButton();
 
 /* ── Actions ─────────────────────────────────────────────── */
 document.getElementById('btn-undo').addEventListener('click', undo);
@@ -286,6 +303,21 @@ infoModal.addEventListener('click', (e) => {
   if (e.target === infoModal) infoModal.classList.add('hidden');
 });
 
+/* ── Thème (LIGHT / DARK / SEXY) ─────────────────────────── */
+const themeSwitch = document.getElementById('theme-switch');
+function applyTheme(name) {
+  document.documentElement.setAttribute('data-theme', name);
+  localStorage.setItem('drawered-theme', name);
+  themeSwitch.querySelectorAll('button').forEach((b) =>
+    b.classList.toggle('active', b.dataset.themeValue === name)
+  );
+  if (gridCtx) { paintGrid(); redrawAll(); }
+}
+themeSwitch.querySelectorAll('button').forEach((b) =>
+  b.addEventListener('click', () => applyTheme(b.dataset.themeValue))
+);
+
 /* ── Démarrage ───────────────────────────────────────────── */
+applyTheme(localStorage.getItem('drawered-theme') || 'dark');
 resizeCanvas();
 saveState();

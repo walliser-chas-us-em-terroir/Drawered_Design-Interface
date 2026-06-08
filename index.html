@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,9 +8,27 @@
 </head>
 <body>
   <main class="home">
-    <h1>DRAWERED</h1>
-    <p>Application de dessin simple.</p>
-    <a class="start-link" href="app.html">START</a>
+    <h1 class="logo">DRAWERED</h1>
+    <p class="home-tagline">Publiez vos dessins sur les réseaux avec le #drawered.</p>
+
+    <div class="home-gallery">
+      <img src="links/traitement-image-1.jpg" alt="" />
+      <img src="links/traitement-image-2.jpg" alt="" />
+      <img src="links/traitement-image-3.jpg" alt="" />
+      <img src="links/traitement-image-4.jpg" alt="" />
+      <img src="links/traitement-image-5.jpg" alt="" />
+      <img src="links/traitement-image-6.jpg" alt="" />
+      <img src="links/traitement-image-7.jpg" alt="" />
+    </div>
+
+    <a class="start-link" href="app.html"><span>Start</span></a>
   </main>
+
+  <script>
+    // applique le thème mémorisé (cohérence avec l'app)
+    document.documentElement.setAttribute(
+      'data-theme', localStorage.getItem('drawered-theme') || 'dark'
+    );
+  </script>
 </body>
 </html>
