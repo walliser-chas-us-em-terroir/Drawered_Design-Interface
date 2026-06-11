@@ -14,9 +14,12 @@ Application web de dessin simple, construite en **HTML / CSS / JavaScript vanill
 
 ## Fonctionnalités
 
-- **Pinceau** (un seul style) — clic sur le bouton : un **slider d'épaisseur s'ouvre à sa droite**.
-- **Gomme** — même principe, avec sa propre épaisseur.
-- **Palette de 5 couleurs** (pinceau) — une seule couleur à la fois, s'ouvre à gauche du bouton.
+- **Pinceau / Gomme** — clic sur l'outil : un **sélecteur d'épaisseur** s'ouvre dans la barre
+  (7 cases-paliers de 1 à 60 px + barre continue dessous) ; l'épaisseur de chaque outil est
+  indépendante.
+- **4 couleurs de dessin** (rouge, jaune, magenta, cyan — ni noir ni blanc) : le bouton couleur
+  déplie les 4 pastilles ; choisir referme le sélecteur et recolore le bouton. **Cyan** par défaut.
+- **Un seul panneau ouvert à la fois** : couleurs OU épaisseur.
 - **Annuler / Rétablir** (undo / redo).
 - **Tout effacer** en un seul clic.
 - **Exporter** le plan de travail en **PNG** (grille + dessin).
@@ -24,16 +27,20 @@ Application web de dessin simple, construite en **HTML / CSS / JavaScript vanill
   pas de zoom, le canva ne bouge pas.
 - Lien **Info** (bas droite) vers la **page d'information** dédiée (`info.html`).
 - **Couleur de l'interface** : 3 thèmes (Light / Dark / Sexy) choisis sur la **page Info**,
-  mémorisés (`localStorage`) et appliqués partout (accueil, app, info).
+  mémorisés (`localStorage`) et appliqués partout (accueil, app, info) ; le mode **Sexy** teinte
+  aussi les photos de l'accueil en rouge.
 
 ## Design
 
-Habillage tiré du fichier Figma (`instructions-2.md` / `instructions-3.md`) :
+Habillage tiré du fichier Figma (`instructions-2.md` → `instructions-4.md`) :
 
-- **Boutons parallélogrammes** (inclinés) **plats** — un fond, un svg, un bord, avec états
-  normal / hover / clicked (sans ombre ni highlight), déclinés selon le thème.
-- **Coin cassé** (clip-path) sur les box d'images de l'accueil (coin bas-gauche, avec effet
-  hover) et sur le bloc de la page Info (coin bas-droite, comme les cards Figma).
+- **Boutons parallélogrammes** à **double contour** (fond vert + cadre intérieur foncé), états
+  normal / hover / clicked, déclinés selon le thème.
+- **Sélecteur d'épaisseur** : cases-paliers (losanges) remplies jusqu'à la valeur + barre
+  continue à curseur rond, intégrés dans la rangée d'outils.
+- **Coin cassé avec bordure** : box d'images de l'accueil (coin bas-gauche), la bordure verte
+  suit tout le contour y compris la diagonale (wrapper `.frame`).
+- **Page Info** pleine page, sans bordure ni coin cassé ; navigation + thème en bas.
 - **Polices** : `Elliot Swonger` (logo, `elliot_swonger.TTF`) + `Maven Pro` (Google Fonts).
 - **Tokens couleur** : variables CSS `--g1…--g4`, `--bg`, `--fg` pilotées par `[data-theme]`.
 
@@ -43,9 +50,9 @@ Habillage tiré du fichier Figma (`instructions-2.md` / `instructions-3.md`) :
 .
 ├── index.html          Page d'accueil (galerie, lien START vers l'app, lien Info)
 ├── app.html            Interface de l'application de dessin
-├── app.js              Logique : canvas fixe, outils, undo/redo, export, thèmes
-├── info.html           Page d'information (textes, choix de la couleur du pinceau)
-├── info.js             Logique de la page Info (thème + sélecteur de couleur)
+├── app.js              Logique : canvas fixe, outils, slider, couleurs, undo/redo, export
+├── info.html           Page d'information (textes + choix du thème de l'interface)
+├── info.js             Logique de la page Info (sélecteur de thème)
 ├── style.css           Design system : tokens 3 thèmes, boutons, typographie
 ├── elliot_swonger.TTF  Police du logo
 ├── package.json        Déclare Playwright (utilisé pour les captures d'archive)

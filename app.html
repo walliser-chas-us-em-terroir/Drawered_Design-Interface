@@ -19,30 +19,8 @@
     <button id="btn-redo" class="btn" title="Rétablir"><span class="ico ico-redo"></span></button>
   </div>
 
-  <!-- Barre droite : outils -->
-  <div class="toolbar toolbar-right">
-    <!-- Couleur du pinceau -->
-    <div class="tool-wrap">
-      <button id="btn-palette" class="btn btn--color" title="Couleur"></button>
-      <div id="panel-palette" class="flyout palette-flyout hidden"></div>
-    </div>
-    <!-- Gomme -->
-    <div class="tool-wrap">
-      <button id="btn-eraser" class="btn" title="Gomme"><span class="ico ico-eraser"></span></button>
-      <div id="panel-eraser" class="flyout hidden">
-        <input type="range" id="eraser-size" min="1" max="60" value="20" />
-        <span class="size-label" id="eraser-size-label">20</span>
-      </div>
-    </div>
-    <!-- Pinceau -->
-    <div class="tool-wrap">
-      <button id="btn-brush" class="btn active" title="Pinceau"><span class="ico ico-brush"></span></button>
-      <div id="panel-brush" class="flyout hidden">
-        <input type="range" id="brush-size" min="1" max="60" value="6" />
-        <span class="size-label" id="brush-size-label">6</span>
-      </div>
-    </div>
-  </div>
+  <!-- Barre droite : outils (couleur, gomme, pinceau, slider) — rendue par app.js -->
+  <div class="toolbar toolbar-right" id="toolbar-right"></div>
 
   <!-- Info (bas droite) -->
   <a href="info.html" class="info-btn">Info</a>

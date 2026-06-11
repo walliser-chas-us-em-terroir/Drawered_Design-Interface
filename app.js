@@ -20,7 +20,7 @@ let gridCanvas = null, gridCtx = null;     // grille en points
 
 /* ── État outils ─────────────────────────────────────────── */
 let tool = 'brush';                 // 'brush' | 'eraser'
-let brushColor = '#1C1C1C';
+let brushColor = '#6FD3EC';         // cyan (défaut) — voir COLORS plus bas
 let brushSize = 6;
 let eraserSize = 20;
 
@@ -172,90 +172,116 @@ canvas.addEventListener('touchstart', startDraw, { passive: false });
 canvas.addEventListener('touchmove', draw, { passive: false });
 canvas.addEventListener('touchend', endDraw);
 
-/* ── Panneaux (flyouts) ──────────────────────────────────── */
-const btnBrush = document.getElementById('btn-brush');
-const btnEraser = document.getElementById('btn-eraser');
-const btnPalette = document.getElementById('btn-palette');
-const panelBrush = document.getElementById('panel-brush');
-const panelEraser = document.getElementById('panel-eraser');
-const panelPalette = document.getElementById('panel-palette');
+/* ── Barre d'outils : couleur, gomme, pinceau, slider ────────
+   La rangée (alignée à droite) est reconstruite par JS selon
+   panelMode. Un seul panneau ouvert à la fois (couleurs OU
+   épaisseur). L'expansion grandit vers la gauche. ───────────── */
+const toolbarRight = document.getElementById('toolbar-right');
 
-function closeAllPanels() {
-  panelBrush.classList.add('hidden');
-  panelEraser.classList.add('hidden');
-  panelPalette.classList.add('hidden');
-}
-function togglePanel(panel) {
-  const willOpen = panel.classList.contains('hidden');
-  closeAllPanels();
-  if (willOpen) panel.classList.remove('hidden');
-}
+/* 4 couleurs fixes (ni noir/blanc ni sombre/clair) + 7 paliers d'épaisseur */
+const COLORS = ['#E5392B', '#F2C53B', '#D633CE', '#6FD3EC']; // rouge, jaune, magenta, cyan
+const SIZES = [1, 10, 20, 30, 40, 50, 60];
+let panelMode = 'none'; // 'none' | 'colors' | 'size'
 
-function setTool(t) {
-  tool = t;
-  btnBrush.classList.toggle('active', t === 'brush');
-  btnEraser.classList.toggle('active', t === 'eraser');
+function setTool(t) { tool = t; }
+function currentSize() { return tool === 'eraser' ? eraserSize : brushSize; }
+function setCurrentSize(v) {
+  v = Math.min(60, Math.max(1, v | 0));
+  if (tool === 'eraser') eraserSize = v; else brushSize = v;
 }
 
-btnBrush.addEventListener('click', (e) => {
-  e.stopPropagation();
-  setTool('brush');
-  togglePanel(panelBrush);
-});
-btnEraser.addEventListener('click', (e) => {
-  e.stopPropagation();
-  setTool('eraser');
-  togglePanel(panelEraser);
-});
-btnPalette.addEventListener('click', (e) => {
-  e.stopPropagation();
-  togglePanel(panelPalette);
-});
+function el(tag, cls) { const e = document.createElement(tag); if (cls) e.className = cls; return e; }
 
-/* Fermer les panneaux au clic ailleurs */
-document.addEventListener('click', closeAllPanels);
-[panelBrush, panelEraser, panelPalette].forEach((p) =>
-  p.addEventListener('click', (e) => e.stopPropagation())
-);
-
-/* ── Sliders d'épaisseur ─────────────────────────────────── */
-const brushSlider = document.getElementById('brush-size');
-const brushSizeLabel = document.getElementById('brush-size-label');
-const eraserSlider = document.getElementById('eraser-size');
-const eraserSizeLabel = document.getElementById('eraser-size-label');
-
-brushSlider.addEventListener('input', () => {
-  brushSize = parseInt(brushSlider.value, 10);
-  brushSizeLabel.textContent = brushSize;
-});
-eraserSlider.addEventListener('input', () => {
-  eraserSize = parseInt(eraserSlider.value, 10);
-  eraserSizeLabel.textContent = eraserSize;
-});
-
-/* ── Palette : 5 couleurs, une seule sélection ───────────── */
-const COLORS = ['#1C1C1C', '#e23b3b', '#2f6fd1', '#73DA41', '#f2b705'];
-function updateColorButton() {
-  btnPalette.style.setProperty('--current-color', brushColor);
-}
-COLORS.forEach((c) => {
-  const sw = document.createElement('button');
-  sw.className = 'swatch';
-  const fill = document.createElement('span');
-  fill.style.background = c;
-  sw.appendChild(fill);
-  if (c === brushColor) sw.classList.add('selected');
-  sw.addEventListener('click', () => {
-    brushColor = c;
-    if (tool === 'eraser') setTool('brush');
-    panelPalette.querySelectorAll('.swatch')
-      .forEach((s) => s.classList.remove('selected'));
-    sw.classList.add('selected');
-    updateColorButton();
+function makeColorButton() {
+  const b = el('button', 'btn btn--color');
+  b.title = 'Couleur';
+  b.style.setProperty('--current-color', brushColor);
+  b.addEventListener('click', (e) => {
+    e.stopPropagation();
+    panelMode = panelMode === 'colors' ? 'none' : 'colors';
+    render();
   });
-  panelPalette.appendChild(sw);
+  return b;
+}
+function makeSwatch(col) {
+  const b = el('button', 'btn btn--color');
+  b.style.setProperty('--current-color', col);
+  b.addEventListener('click', (e) => {
+    e.stopPropagation();
+    brushColor = col;
+    if (tool === 'eraser') setTool('brush');
+    panelMode = 'none';
+    render();
+  });
+  return b;
+}
+function makeToolButton(t, ico, title) {
+  const b = el('button', 'btn' + (tool === t ? ' active' : ''));
+  b.title = title;
+  b.appendChild(el('span', 'ico ico-' + ico));
+  b.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (tool === t && panelMode === 'size') panelMode = 'none';
+    else { setTool(t); panelMode = 'size'; }
+    render();
+  });
+  return b;
+}
+function updateSizeFills() {
+  toolbarRight.querySelectorAll('.size-cell').forEach((c, i) =>
+    c.classList.toggle('filled', SIZES[i] <= currentSize())
+  );
+}
+function makeSizeWidget() {
+  const w = el('div', 'size-widget');
+  const cells = el('div', 'size-cells');
+  SIZES.forEach((sz) => {
+    const c = el('button', 'size-cell' + (sz <= currentSize() ? ' filled' : ''));
+    c.title = sz + ' px';
+    const bar = el('span', 'bar');
+    bar.style.height = Math.max(2, Math.round((sz / 60) * 22)) + 'px';
+    c.appendChild(bar);
+    c.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setCurrentSize(sz);
+      render();
+    });
+    cells.appendChild(c);
+  });
+  const track = el('input', 'size-track');
+  track.type = 'range'; track.min = '1'; track.max = '60';
+  track.value = String(currentSize());
+  // on ne reconstruit pas pendant le glissement (on garde le focus du curseur)
+  track.addEventListener('input', (e) => {
+    e.stopPropagation();
+    setCurrentSize(parseInt(track.value, 10));
+    updateSizeFills();
+  });
+  track.addEventListener('click', (e) => e.stopPropagation());
+  w.appendChild(cells);
+  w.appendChild(track);
+  return w;
+}
+
+function render() {
+  toolbarRight.innerHTML = '';
+  // zone couleur (bouton unique, ou les 4 pastilles dépliées)
+  if (panelMode === 'colors') COLORS.forEach((col) => toolbarRight.appendChild(makeSwatch(col)));
+  else toolbarRight.appendChild(makeColorButton());
+  // gomme, (slider si gomme active), pinceau, (slider si pinceau actif)
+  toolbarRight.appendChild(makeToolButton('eraser', 'eraser', 'Gomme'));
+  if (panelMode === 'size' && tool === 'eraser') toolbarRight.appendChild(makeSizeWidget());
+  toolbarRight.appendChild(makeToolButton('brush', 'brush', 'Pinceau'));
+  if (panelMode === 'size' && tool === 'brush') toolbarRight.appendChild(makeSizeWidget());
+}
+
+/* clic ailleurs : referme le panneau ouvert */
+toolbarRight.addEventListener('click', (e) => e.stopPropagation());
+document.addEventListener('click', () => {
+  if (panelMode !== 'none') { panelMode = 'none'; render(); }
 });
-updateColorButton();
+
+render();
 
 /* ── Actions ─────────────────────────────────────────────── */
 document.getElementById('btn-undo').addEventListener('click', undo);
