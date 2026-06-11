@@ -81,42 +81,46 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
 
 /* ============================================================
    Bouton parallélogramme générique
-   États plats : un fond, un svg, un bord (sans ombre/highlight)
+   Double contour (cf. Figma) : fond vert + cadre intérieur foncé.
    ============================================================ */
 .btn {
   position: relative;
   width: var(--btn-w);
   height: var(--btn-h);
   padding: 0;
-  border: 2px solid var(--g3);
-  background: var(--g2);
+  border: none;
+  background: var(--g3);
   transform: skewX(var(--skew));
   cursor: pointer;
-  transition: background 0.12s;
+  transition: background 0.12s, filter 0.12s;
 }
-/* le contenu est dé-incliné pour rester droit */
+/* cadre intérieur foncé = le 2e contour */
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 2px solid var(--g4);
+  pointer-events: none;
+}
+/* le contenu est dé-incliné pour rester droit, au-dessus du cadre */
 .btn > * {
+  position: relative;
+  z-index: 1;
   transform: skewX(var(--unskew));
 }
 .btn .ico { background: var(--g4); }
 
-/* hover : fond plus vif */
-.btn:hover {
-  background: var(--g3);
-}
-.btn:hover .ico { background: var(--g4); }
+/* hover : fond légèrement plus vif */
+.btn:hover { filter: brightness(1.08); }
 
-/* clicked : fond plus sombre */
-.btn:active {
-  background: var(--g4);
-}
-.btn:active .ico { background: var(--g3); }
-
-/* outil sélectionné (pinceau / gomme actif) */
+/* clicked + outil sélectionné : inversion (fond foncé, cadre vif) */
+.btn:active,
 .btn.active {
   background: var(--g4);
-  border-color: var(--g3);
 }
+.btn:active::before,
+.btn.active::before { border-color: var(--g3); }
+.btn:active .ico,
 .btn.active .ico { background: var(--g3); }
 
 .btn:disabled,
