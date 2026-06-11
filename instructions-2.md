@@ -1,4 +1,4 @@
-## Button
+## Assets
 
 Implement this design from Figma.
 
@@ -13,6 +13,12 @@ Implement this design from Figma.
 @https://www.figma.com/design/7rikfm0izkG47NVU4KlcnE/Mathias_UDRIOT_Interface5?node-id=6001-7279&m=dev
 @https://www.figma.com/design/7rikfm0izkG47NVU4KlcnE/Mathias_UDRIOT_Interface5?node-id=4007-282&m=dev
 @https://www.figma.com/design/7rikfm0izkG47NVU4KlcnE/Mathias_UDRIOT_Interface5?node-id=82-815&m=dev
+
+Tout les assets se trouvent dans le dossier image puis assets
+
+## exmeple interface
+
+des exemples d'interface se trouve dans le dossier image puis interface
 
 ## Text Style
 
@@ -64,10 +70,20 @@ line-height: 100%; /* 16px */
 | BG    | `#F3F3F3` | `#1C1C1C` | `#230202` |
 | Blanc | `#1C1C1C` | `#F3F3F3` | `#F4E3E3` |
 
-##  Assets
+## instructions pour le codage de mon application.
 
-Tout les assets se trouvent dans le dossier image puis assets
+Tu trouves ci-dessus toutes informaitons graphique pour mon design.
 
-## exmeple interface
+Ajouter un bouton se déplacer tu trouveras l'icone dans les dossier. Elle permet de se déplacer sur le pain de travail.
 
-des exemples d'interface se trouve dans le dossier image puis interface
+Les boutons : move, pinceau, couleurs, gomme doivent se trouver en haut à droite.
+Les boutons Exporter, undo, redo, tout effacer doivent se trouver en haut à gauche
+Positionne les dans l'autre que je les ai cité, de gauche é droite.
+
+Qaund je dessinne sur le plan dessinne sur le plan de travail ça doit être fixé au plan de travail et quand je dézomme ça dézomme mon dessin. tout doit bouger. On se déplace sur le plan de travail en utilisant la main ou le pad de l'ordi (doit fonctioner)
+
+le slider pour changer la taille de la gomme doit se mettre sur la droite à chaque dois élargir la place que prend la rangée de colonne. ça doit s'écarter à gauche et afficher le slider. Pareil pour le pinceau. Pour la couleur je veux que ça fasse la même chosse mais que ça dublique le bouton couleurs 4 fois sur la droite aussi afin de pouvoir choisir la bonne couleur.
+
+Pour le bouton exporter tu peux ouvrir une card en dessou typiqueemnt comme ce que j'ai designer qui permet d'offir un paramètre de qualité d'export png ? ce n'est pas que exporter simplement, je veux que ce soit plus sophistiqué.
+
+Allons-y déjà avec cela et oublie de faire une dossier archive avec toutes les informations de ma demande + capture d'écran.
