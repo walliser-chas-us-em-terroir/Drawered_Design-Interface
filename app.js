@@ -3,7 +3,9 @@
 /* ============================================================
    DRAWERED — logique de l'app de dessin (vanilla JS)
    Fonctions : pinceau, gomme (épaisseurs), palette 5 couleurs,
-   undo/redo, tout effacer, export PNG, zoom 50%–200%, grille.
+   undo/redo, tout effacer, export PNG, grille en points (canvas
+   fixe). Le thème (Light/Dark/Sexy) est choisi sur info.html et
+   appliqué ici au démarrage via localStorage ('drawered-theme').
    ============================================================ */
 
 /* ── Canvas & couches ────────────────────────────────────── */
@@ -12,7 +14,6 @@ const ctx = canvas.getContext('2d');
 
 const DPR = window.devicePixelRatio || 1;
 let cssW = 0, cssH = 0;
-let zoom = 1.0;
 
 let strokeCanvas = null, strokeCtx = null; // dessin de l'utilisateur
 let gridCanvas = null, gridCtx = null;     // grille en points
@@ -67,8 +68,8 @@ function gridColor() {
 }
 function paintGrid() {
   gridCtx.clearRect(0, 0, cssW, cssH);
-  const sp = BASE_SPACING * zoom;
-  const r = Math.max(0.8, zoom * 0.9);
+  const sp = BASE_SPACING;
+  const r = 0.9;
   gridCtx.fillStyle = gridColor();
   for (let x = sp / 2; x < cssW; x += sp)
     for (let y = sp / 2; y < cssH; y += sp) {
@@ -150,7 +151,7 @@ function draw(e) {
   strokeCtx.globalCompositeOperation =
     tool === 'eraser' ? 'destination-out' : 'source-over';
   strokeCtx.strokeStyle = brushColor;
-  strokeCtx.lineWidth = (tool === 'eraser' ? eraserSize : brushSize) * zoom;
+  strokeCtx.lineWidth = tool === 'eraser' ? eraserSize : brushSize;
   strokeCtx.beginPath();
   strokeCtx.moveTo(lastX, lastY);
   strokeCtx.lineTo(p.x, p.y);
@@ -280,42 +281,12 @@ document.getElementById('btn-export').addEventListener('click', () => {
   a.click();
 });
 
-/* ── Zoom (50% → 200%) ───────────────────────────────────── */
-const zoomLabel = document.getElementById('zoom-label');
-function setZoom(v) {
-  zoom = Math.min(Math.max(v, 0.5), 2.0);
-  zoomLabel.textContent = Math.round(zoom * 100) + '%';
-  paintGrid();
-  redrawAll();
-}
-document.getElementById('btn-zoom-in')
-  .addEventListener('click', () => setZoom(zoom + 0.1));
-document.getElementById('btn-zoom-out')
-  .addEventListener('click', () => setZoom(zoom - 0.1));
-
-/* ── Modal info ──────────────────────────────────────────── */
-const infoModal = document.getElementById('info-modal');
-document.getElementById('btn-info')
-  .addEventListener('click', () => infoModal.classList.remove('hidden'));
-document.getElementById('btn-info-close')
-  .addEventListener('click', () => infoModal.classList.add('hidden'));
-infoModal.addEventListener('click', (e) => {
-  if (e.target === infoModal) infoModal.classList.add('hidden');
-});
-
-/* ── Thème (LIGHT / DARK / SEXY) ─────────────────────────── */
-const themeSwitch = document.getElementById('theme-switch');
+/* ── Thème (choisi sur info.html, appliqué ici au démarrage) ─ */
 function applyTheme(name) {
   document.documentElement.setAttribute('data-theme', name);
   localStorage.setItem('drawered-theme', name);
-  themeSwitch.querySelectorAll('button').forEach((b) =>
-    b.classList.toggle('active', b.dataset.themeValue === name)
-  );
   if (gridCtx) { paintGrid(); redrawAll(); }
 }
-themeSwitch.querySelectorAll('button').forEach((b) =>
-  b.addEventListener('click', () => applyTheme(b.dataset.themeValue))
-);
 
 /* ── Démarrage ───────────────────────────────────────────── */
 applyTheme(localStorage.getItem('drawered-theme') || 'dark');
