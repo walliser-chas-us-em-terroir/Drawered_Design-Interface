@@ -2,24 +2,26 @@
 
 /* ============================================================
    DRAWERED — page info
-   Choix de la couleur de l'interface (thème Light / Dark / Sexy).
-   Le thème est mémorisé (localStorage 'drawered-theme') et
-   appliqué partout (accueil, app, info).
+   Tab-bar de couleur d'interface (Light / Dark / Sexy) avec
+   pastille active qui glisse. Thème mémorisé (localStorage
+   'drawered-theme') et appliqué partout (accueil, app, info).
    ============================================================ */
 
-const themeSwitch = document.getElementById('theme-switch');
+const ORDER = ['light', 'dark', 'sexy'];
+const tabbar = document.getElementById('theme-tabbar');
+const tabs = Array.from(tabbar.querySelectorAll('.tab'));
+const indicator = tabbar.querySelector('.tabbar-indicator');
 
 function applyTheme(name) {
   document.documentElement.setAttribute('data-theme', name);
   localStorage.setItem('drawered-theme', name);
-  themeSwitch.querySelectorAll('button').forEach((b) =>
-    b.classList.toggle('active', b.dataset.themeValue === name)
-  );
+  tabs.forEach((t) => t.classList.toggle('active', t.dataset.themeValue === name));
+  const i = Math.max(0, ORDER.indexOf(name));
+  indicator.style.transform = `translateX(${i * 100}%)`; // glissement
 }
 
-themeSwitch.querySelectorAll('button').forEach((b) =>
-  b.addEventListener('click', () => applyTheme(b.dataset.themeValue))
+tabs.forEach((t) =>
+  t.addEventListener('click', () => applyTheme(t.dataset.themeValue))
 );
 
-// Applique et reflète le thème mémorisé au chargement
 applyTheme(localStorage.getItem('drawered-theme') || 'dark');

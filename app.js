@@ -239,7 +239,8 @@ function makeSizeWidget() {
     const c = el('button', 'size-cell' + (sz <= currentSize() ? ' filled' : ''));
     c.title = sz + ' px';
     const bar = el('span', 'bar');
-    bar.style.height = Math.max(2, Math.round((sz / 60) * 22)) + 'px';
+    // hauteur = épaisseur (trait arrondi), plafonnée pour rester un trait, pas un rond
+    bar.style.height = Math.max(2, Math.round((sz / 60) * 14)) + 'px';
     c.appendChild(bar);
     c.addEventListener('click', (e) => {
       e.stopPropagation();

@@ -32,15 +32,19 @@ Application web de dessin simple, construite en **HTML / CSS / JavaScript vanill
 
 ## Design
 
-Habillage tiré du fichier Figma (`instructions-2.md` → `instructions-4.md`) :
+Habillage tiré du fichier Figma (`instructions-2.md` → `instructions-5.md`) :
 
-- **Boutons parallélogrammes** à **double contour** (fond vert + cadre intérieur foncé), états
-  normal / hover / clicked, déclinés selon le thème.
-- **Sélecteur d'épaisseur** : cases-paliers (losanges) remplies jusqu'à la valeur + barre
-  continue à curseur rond, intégrés dans la rangée d'outils.
-- **Coin cassé avec bordure** : box d'images de l'accueil (coin bas-gauche), la bordure verte
-  suit tout le contour y compris la diagonale (wrapper `.frame`).
-- **Page Info** pleine page, sans bordure ni coin cassé ; navigation + thème en bas.
+- **Style de bouton unique** (parallélogrammes) à **3 bandes** : rim vif (G3) + bande foncée
+  (G4) + fond (G3) ; états normal / hover (olive G1) / clicked (fond G2). Même style partout,
+  y compris le bouton **START** et les pastilles de couleur (double contour autour de la couleur).
+- **Sélecteur d'épaisseur** : cases-paliers (losanges) à **traits arrondis** remplies jusqu'à la
+  valeur + barre continue à curseur rond, intégrés dans la rangée d'outils.
+- **Tab-bar de thème** (page Info) : pastille active à double contour qui **glisse** entre
+  Light / Dark / Sexy, hover en vert moyen.
+- **Galerie d'accueil** : images **16:9** sur **3 lignes en briques** (décalage ½), **coin cassé
+  à droite** avec bordure verte suivant tout le contour (wrapper `.frame`).
+- **Barre du bas** alignée au **même niveau** et même style sur les 3 pages.
+- **Page Info** pleine page, sans bordure ni coin cassé ; paragraphes décalés à droite.
 - **Polices** : `Elliot Swonger` (logo, `elliot_swonger.TTF`) + `Maven Pro` (Google Fonts).
 - **Tokens couleur** : variables CSS `--g1…--g4`, `--bg`, `--fg` pilotées par `[data-theme]`.
 

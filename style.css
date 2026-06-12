@@ -80,29 +80,31 @@ h2 {
 p { font-size: 16px; font-weight: 400; line-height: 1.4; }
 
 /* ============================================================
-   Bouton parallélogramme générique
-   Double contour (cf. Figma) : fond vert + cadre intérieur foncé.
+   Bouton parallélogramme — style unique (cf. bouton-style/*.png)
+   3 bandes : rim vif (G3) + bande foncée (G4) + fond (G3).
+   hover : rim/bande olive (G1) ; clicked : fond vert moyen (G2).
    ============================================================ */
 .btn {
   position: relative;
   width: var(--btn-w);
   height: var(--btn-h);
   padding: 0;
-  border: none;
-  background: var(--g3);
+  background: var(--g4);          /* bande foncée (2e contour) */
+  border: 2px solid var(--g3);    /* rim vif externe (1er contour) */
   transform: skewX(var(--skew));
   cursor: pointer;
-  transition: background 0.12s, filter 0.12s;
+  transition: background 0.12s, border-color 0.12s;
 }
-/* cadre intérieur foncé = le 2e contour */
+/* le fond (3e bande) */
 .btn::before {
   content: '';
   position: absolute;
-  inset: 3px;
-  border: 2px solid var(--g4);
+  inset: 6px;
+  background: var(--g3);
   pointer-events: none;
+  transition: background 0.12s;
 }
-/* le contenu est dé-incliné pour rester droit, au-dessus du cadre */
+/* le contenu est dé-incliné pour rester droit, au-dessus du fond */
 .btn > * {
   position: relative;
   z-index: 1;
@@ -110,15 +112,14 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
 }
 .btn .ico { background: var(--g4); }
 
-/* hover : fond légèrement plus vif */
-.btn:hover { filter: brightness(1.08); }
+/* hover : rim + bande passent en olive (G1), fond reste vert */
+.btn:hover { background: var(--g1); border-color: var(--g1); }
+.btn:hover .ico { background: var(--g1); }
 
-/* clicked (appui) : inversion momentanée (fond foncé, cadre vif) */
-.btn:active {
-  background: var(--g4);
-}
-.btn:active::before { border-color: var(--g3); }
-.btn:active .ico { background: var(--g3); }
+/* clicked : fond vert moyen (G2), rim + bande olive */
+.btn:active { background: var(--g1); border-color: var(--g1); }
+.btn:active::before { background: var(--g2); }
+.btn:active .ico { background: var(--g1); }
 
 .btn:disabled,
 .btn.disabled {
@@ -146,16 +147,11 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
 
 /* bouton "tout effacer" : icône en teinte avertissement */
 .btn--danger .ico { background: #b5651d; }
-.btn--danger:active .ico,
-.btn--danger.active .ico { background: #e07a25; }
+.btn--danger:hover .ico,
+.btn--danger:active .ico { background: #e07a25; }
 
-/* Pastille couleur : contour vert autour de la couleur active */
-.btn--color { background: var(--g3); }
-.btn--color::before {
-  border: none;
-  background: var(--current-color, #6FD3EC);
-}
-.btn--color:active { background: var(--g3); }
+/* Pastille couleur : double contour (rim G3 + bande G4) autour de la couleur */
+.btn--color::before { background: var(--current-color, #6FD3EC); }
 .btn--color:active::before { background: var(--current-color, #6FD3EC); }
 
 /* ============================================================
@@ -201,8 +197,8 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
 }
 .size-cell .bar {
   display: block;
-  width: 60%;
-  border-radius: 999px;
+  width: 74%;
+  border-radius: 999px;          /* trait horizontal arrondi (pas un rond) */
   background: var(--g3);
   transform: skewX(var(--unskew));
 }
@@ -236,17 +232,17 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
   cursor: pointer;
 }
 
-/* ---- Info (bas droite) ------------------------------------ */
+/* ---- Info (bas droite) — niveau commun à toutes les pages -- */
 .info-btn {
   position: absolute;
-  bottom: 16px;
-  right: 16px;
+  bottom: 32px;
+  right: 56px;
   z-index: 10;
   background: none;
   border: none;
   color: var(--g3);
   font-family: 'Maven Pro', sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -255,41 +251,60 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
 }
 .info-btn:hover { text-decoration: underline; }
 
-/* ---- Sélecteur de thème (haut centre) --------------------- */
-.theme-switch {
-  position: absolute;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
+/* ---- Tab-bar de thème (Light / Dark / Sexy) avec glissement -
+   conteneur losange fond G4 + rim G3, pastille active qui glisse
+   (cf. node 106-39 / tab-bar-exemple). ----------------------- */
+.tabbar {
+  position: relative;
   display: flex;
-  gap: 6px;
-  z-index: 10;
+  height: 46px;
+  width: 360px;
+  background: var(--g4);          /* fond foncé */
+  border: 2px solid var(--g3);    /* rim vif */
+  transform: skewX(var(--skew));
+  overflow: hidden;
 }
-.theme-switch button {
-  border: 2px solid var(--g4);
+/* pastille active (double contour) qui glisse */
+.tabbar-indicator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: calc(100% / 3);
+  background: var(--g3);
+  z-index: 0;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tabbar-indicator::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 2px solid var(--g4);    /* ligne foncée intérieure */
+}
+.tab {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  height: 100%;
   background: transparent;
-  color: var(--fg);
+  border: none;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.tab + .tab { box-shadow: -2px 0 0 var(--g3); } /* séparateur vert */
+.tab > span {
+  display: block;
+  transform: skewX(var(--unskew));
   font-family: 'Maven Pro', sans-serif;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  padding: 5px 12px;
-  transform: skewX(var(--skew));
-  cursor: pointer;
+  color: var(--g1);               /* inactif : olive */
 }
-.theme-switch button > span { display: block; transform: skewX(var(--unskew)); }
-.theme-switch button.active {
-  background: var(--g3);
-  color: var(--g4);
-}
-/* variante intégrée à la page info (non flottante), boutons collés */
-.theme-switch--info {
-  position: static;
-  transform: none;
-  gap: 0;
-}
-.theme-switch--info button { font-size: 14px; padding: 8px 18px; }
+.tab.active > span { color: var(--g4); }        /* actif : texte foncé */
+.tab:hover:not(.active) { background: var(--g2); } /* hover : vert moyen */
+.tab:hover:not(.active) > span { color: var(--g4); }
 
 /* ============================================================
    Page info (info.html) — autonome, bloc >=75 %, coin cassé
@@ -299,7 +314,7 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
 .info-page {
   position: relative;
   min-height: 100vh;
-  padding: 48px 56px;
+  padding: 48px 56px 110px;       /* bas réservé à la barre commune */
   display: flex;
   flex-direction: column;
   background: var(--bg);
@@ -315,14 +330,17 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
   grid-template-columns: 1fr 1fr;
   gap: 40px;
   max-width: 1000px;
+  margin-left: 14%;              /* décalage des 2 colonnes vers la droite (cf. info.png) */
   color: var(--g3);
 }
 .info-cols p { margin: 0; }
 
-/* bas de page : liens à gauche, thème à droite, sur une ligne */
+/* bas de page : liens à gauche, tab-bar thème à droite — niveau commun */
 .info-nav {
-  margin-top: auto;
-  padding-top: 40px;
+  position: absolute;
+  left: 56px;
+  right: 56px;
+  bottom: 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -330,6 +348,8 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
 .info-links { display: flex; gap: 32px; }
 .info-nav a {
   color: var(--g3);
+  font-family: 'Maven Pro', sans-serif;
+  font-size: 14px;
   font-weight: 500;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -345,11 +365,11 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
   position: relative;
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 1fr 1.7fr;
+  grid-template-columns: minmax(320px, 1fr) auto;
   grid-template-rows: auto 1fr auto;
   column-gap: 48px;
   row-gap: 28px;
-  padding: 48px 56px 64px;
+  padding: 48px 56px 96px;       /* bas réservé à la barre commune */
 }
 .home-logo {
   grid-column: 1;
@@ -358,24 +378,32 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
   align-self: start;
 }
 
-/* Galerie : cases identiques décalées, bordure verte suivant le coin cassé */
+/* Galerie : images 16:9 sur 3 lignes, en briques (décalage 1/2), à droite */
 .home-gallery {
+  --card-w: 17vw;
   grid-column: 2;
-  grid-row: 1 / 3;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 156px;
+  grid-row: 1 / 4;
+  align-self: start;
+  justify-self: end;
+  display: flex;
+  flex-direction: column;
   gap: 16px;
-  align-content: start;
 }
-/* --cut : coin bas-gauche cassé ; le wrapper vert fait office de bordure */
+.gallery-row { display: flex; gap: 16px; }
+.gallery-row:nth-child(even) { margin-left: calc(var(--card-w) / 2); } /* brique */
+
+/* --cut : coin bas-DROITE cassé ; le wrapper vert fait office de bordure */
 .frame {
   --cut: 20px;
   position: relative;
+  width: var(--card-w);
+  aspect-ratio: 16 / 9;
   background: var(--g3);
   clip-path: polygon(
-    0 0, 100% 0, 100% 100%,
-    var(--cut) 100%, 0 calc(100% - var(--cut))
+    0 0, 100% 0,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0 100%
   );
   transition: transform 0.18s;
 }
@@ -386,8 +414,10 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
   height: calc(100% - 6px);
   object-fit: cover;
   clip-path: polygon(
-    0 0, 100% 0, 100% 100%,
-    var(--cut) 100%, 0 calc(100% - var(--cut))
+    0 0, 100% 0,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0 100%
   );
   filter: grayscale(1) brightness(0.9) sepia(1) hue-rotate(60deg) saturate(2.4);
   transition: transform 0.18s, filter 0.18s;
@@ -403,16 +433,6 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
 [data-theme='sexy'] .frame:hover img {
   filter: grayscale(1) brightness(1.05) sepia(1) hue-rotate(-30deg) saturate(4.6);
 }
-/* placement uniforme décalé (casse la grille) */
-.home-gallery .frame { grid-row: span 1; }
-.home-gallery .g1 { grid-area: 1 / 1; }
-.home-gallery .g2 { grid-area: 1 / 2; transform: translateY(30px); }
-.home-gallery .g3 { grid-area: 1 / 3; transform: translateY(14px); }
-.home-gallery .g4 { grid-area: 1 / 4; transform: translateY(48px); }
-.home-gallery .g5 { grid-area: 2 / 1; }
-.home-gallery .g6 { grid-area: 2 / 2; transform: translateY(30px); }
-.home-gallery .g7 { grid-area: 2 / 3; transform: translateY(14px); }
-
 .home-tagline {
   grid-column: 1;
   grid-row: 2;
@@ -426,48 +446,65 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
 .home-actions {
   grid-column: 1;
   grid-row: 3;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
   align-self: end;
 }
-.home-version {
-  color: var(--g3);
-  font-size: 13px;
-  letter-spacing: 1px;
-}
+
+/* ---- Barre du bas commune (même niveau / style sur chaque page) ---- */
+.home-version,
 .home-info {
   position: absolute;
-  bottom: 64px;
-  right: 56px;
+  bottom: 32px;
   color: var(--g3);
+  font-family: 'Maven Pro', sans-serif;
+  font-size: 14px;
   font-weight: 500;
   letter-spacing: 1px;
   text-transform: uppercase;
   text-decoration: none;
 }
+.home-version { left: 56px; }
+.home-info { right: 56px; }
 .home-info:hover { text-decoration: underline; }
 
+/* START : même style que les boutons icône (3 bandes) */
 .start-link {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 217px;
   height: 50px;
-  background: var(--g4);
-  border: 2px solid var(--g3);
-  color: var(--g3);
+  background: var(--g4);          /* bande foncée */
+  border: 2px solid var(--g3);    /* rim vif */
+  text-decoration: none;
+  transform: skewX(var(--skew));
+  transition: background 0.12s, border-color 0.12s;
+}
+.start-link::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  background: var(--g3);          /* fond */
+  pointer-events: none;
+  transition: background 0.12s;
+}
+.start-link > span {
+  position: relative;
+  z-index: 1;
+  display: block;
+  transform: skewX(var(--unskew));
+  color: var(--g4);
   font-family: 'Maven Pro', sans-serif;
   font-size: 25px;
   font-weight: 500;
   letter-spacing: -1.25px;
   text-transform: uppercase;
-  text-decoration: none;
-  transform: skewX(var(--skew));
-  transition: background 0.12s, color 0.12s;
 }
-.start-link > span { display: block; transform: skewX(var(--unskew)); }
-.start-link:hover { background: var(--g3); color: var(--g4); }
+.start-link:hover { background: var(--g1); border-color: var(--g1); }
+.start-link:hover > span { color: var(--g1); }
+.start-link:active { background: var(--g1); border-color: var(--g1); }
+.start-link:active::before { background: var(--g2); }
+.start-link:active > span { color: var(--g1); }
 
 /* ---- Utilitaire ---- */
 .hidden { display: none; }
