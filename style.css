@@ -378,18 +378,21 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
   font-size: 72px;
 }
 
-/* Galerie : images 16:9 sur 3 lignes en briques, à droite, ~76 % de la hauteur */
+/* Galerie : images 16:9 sur 3 lignes en briques, poussées à droite (peuvent
+   déborder à droite), ~60 % de la hauteur, jamais sous le texte de gauche */
 .home-gallery {
-  --card-h: 24vh;
+  --card-h: 19vh;
+  --card-w: calc(var(--card-h) * 16 / 9);
   position: absolute;
-  top: 132px;
-  right: 56px;
+  top: 150px;
+  right: -24px;                  /* débordement léger à droite */
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 .gallery-row { display: flex; gap: 16px; }
-.gallery-row:nth-child(even) { margin-left: calc(var(--card-h) * 16 / 9 / 2); } /* brique */
+.gallery-row:nth-child(even) { margin-left: calc(var(--card-w) / 2); }      /* brique */
+.gallery-row:nth-child(3) { margin-left: calc(var(--card-w) + 16px); }       /* ligne du bas décalée d'une image */
 
 /* --cut : coin bas-DROITE cassé ; le wrapper vert fait office de bordure */
 .frame {
@@ -435,24 +438,25 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
 .home-tagline {
   position: absolute;
   left: 56px;
-  bottom: 150px;
+  bottom: 104px;
   max-width: 260px;
   color: var(--g3);
   font-weight: 500;
 }
 .home-tagline strong { color: var(--g3); }
 
+/* START collé à la ligne de base invisible (bas commun) */
 .home-actions {
   position: absolute;
   left: 56px;
-  bottom: 80px;
+  bottom: 32px;
 }
 
-/* ---- Barre du bas commune (même niveau / style sur chaque page) ---- */
-.home-version,
+/* ---- Ligne de base commune (tout collé en bas, même niveau) ---- */
 .home-info {
   position: absolute;
   bottom: 32px;
+  right: 56px;
   color: var(--g3);
   font-family: 'Maven Pro', sans-serif;
   font-size: 14px;
@@ -461,8 +465,6 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
   text-transform: uppercase;
   text-decoration: none;
 }
-.home-version { left: 56px; }
-.home-info { right: 56px; }
 .home-info:hover { text-decoration: underline; }
 
 /* START : même style que les boutons icône (3 bandes) */
