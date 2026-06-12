@@ -11,7 +11,6 @@ Application web de dessin simple, construite en **HTML / CSS / JavaScript vanill
 - **🖥️ Application en ligne** : https://walliser-chas-us-em-terroir.github.io/Drawered_Design-Interface/
   (page d'accueil → bouton **START** → l'application de dessin)
 - **📄 Présentation (PDF, 37 pages)** : [télécharger / ouvrir](_Presentation/Pr%C3%A9sentation_Mathias_UDRIOT_Interface5.pdf)
-  — version navigable autonome : [`_Presentation/Presentation-DRAWERED-Phase3.html`](_Presentation/Presentation-DRAWERED-Phase3.html)
 - **🎨 Maquette Figma (mode édition)** : [ouvrir dans Figma](https://www.figma.com/design/7rikfm0izkG47NVU4KlcnE/Mathias_UDRIOT_Interface5?node-id=1-2&t=bDoTYTlNIwWmwJey-1)
   — *accès en édition protégé : le code est communiqué directement à l'enseignant (non publié ici).*
 
