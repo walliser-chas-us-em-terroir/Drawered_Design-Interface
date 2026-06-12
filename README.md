@@ -10,7 +10,7 @@ Application web de dessin simple, construite en **HTML / CSS / JavaScript vanill
 
 - **🖥️ Application en ligne** : https://walliser-chas-us-em-terroir.github.io/Drawered_Design-Interface/
   (page d'accueil → bouton **START** → l'application de dessin)
-- **📄 Présentation (PDF, 37 pages)** : [télécharger / ouvrir](_Presentation/Presentation-DRAWERED-Phase3.pdf)
+- **📄 Présentation (PDF, 37 pages)** : [télécharger / ouvrir](_Presentation/Pr%C3%A9sentation_Mathias_UDRIOT_Interface5.pdf)
   — version navigable autonome : [`_Presentation/Presentation-DRAWERED-Phase3.html`](_Presentation/Presentation-DRAWERED-Phase3.html)
 - **🎨 Maquette Figma (mode édition)** : [ouvrir dans Figma](https://www.figma.com/design/7rikfm0izkG47NVU4KlcnE/Mathias_UDRIOT_Interface5?node-id=1-2&t=bDoTYTlNIwWmwJey-1)
   — *accès en édition protégé : le code est communiqué directement à l'enseignant (non publié ici).*
@@ -65,7 +65,8 @@ Habillage tiré du fichier Figma (`instructions-2.md` → `instructions-5.md`) :
 ├── elliot_swonger.TTF  Police du logo
 ├── package.json        Déclare Playwright (utilisé pour les captures d'archive)
 ├── links/              Maquettes, assets (dont links/assets/_icon SVG) et images
-├── archive/            Archive des prompts (voir ci-dessous)
+├── archive/            Journal de bord, classé par jour (jour-1 à jour-5)
+├── _Presentation/      Rendu Phase 3 : présentation (HTML autonome + PDF)
 └── old_version/        Ancienne version — ignorée, conservée pour référence
 ```
 
@@ -79,19 +80,11 @@ python3 -m http.server 8000
 # puis ouvrir http://localhost:8000/
 ```
 
-## Archive des prompts
+## Journal de bord (archive)
 
-Chaque requête faite à l'assistant est archivée dans `archive/`, dans un sous-dossier
-`prompt-X_aammjjhhmmss` contenant le prompt, le résultat produit et les **captures d'écran**
-des 3 interfaces (`home.png`, `app.png`, `info.png`). Détails et convention de nommage :
-[`archive/README.md`](archive/README.md).
-
-Générer les captures des 3 interfaces (Playwright + Chrome) :
-
-```bash
-npm install            # installe Playwright (devDependency)
-node archive/capture.mjs archive/prompt-X_aammjjhhmmss
-```
+Le travail est archivé dans `archive/`, **classé par jour** (`jour-1` à `jour-5`) : notes de
+cours, prompts envoyés, résultats et **captures d'écran** des interfaces à chaque étape. Cette
+matière constitue le journal de bord repris dans la présentation (Phase 3).
 
 ## Déploiement
 
