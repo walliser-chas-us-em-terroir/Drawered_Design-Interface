@@ -381,7 +381,8 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
 /* Galerie : images 16:9 sur 3 lignes en briques, poussées à droite (peuvent
    déborder à droite), ~60 % de la hauteur, jamais sous le texte de gauche */
 .home-gallery {
-  --card-h: 19vh;
+  /* haut fixe (150px) → bas étiré jusqu'au bas du texte (104px), 3 lignes + 2 gaps */
+  --card-h: calc((100vh - 286px) / 3);
   --card-w: calc(var(--card-h) * 16 / 9);
   position: absolute;
   top: 150px;
