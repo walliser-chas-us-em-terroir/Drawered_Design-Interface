@@ -95,11 +95,11 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
   cursor: pointer;
   transition: background 0.12s, border-color 0.12s;
 }
-/* le fond (3e bande) */
+/* le fond (3e bande) — inset 4px : bande foncée G4 = 2px, égale au rim G3 */
 .btn::before {
   content: '';
   position: absolute;
-  inset: 6px;
+  inset: 4px;
   background: var(--g3);
   pointer-events: none;
   transition: background 0.12s;
@@ -278,8 +278,8 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
 .tabbar-indicator::before {
   content: '';
   position: absolute;
-  inset: 4px;
-  border: 2px solid var(--g4);    /* ligne foncée intérieure */
+  inset: 3px;
+  border: 2px solid var(--g4);    /* ligne foncée intérieure (épaisseur harmonisée) */
 }
 .tab {
   position: relative;
@@ -305,6 +305,14 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
 .tab.active > span { color: var(--g4); }        /* actif : texte foncé */
 .tab:hover:not(.active) { background: var(--g2); } /* hover : vert moyen */
 .tab:hover:not(.active) > span { color: var(--g4); }
+/* contour intérieur sur le hover (comme la pastille active) */
+.tab:hover:not(.active)::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 2px solid var(--g4);
+  pointer-events: none;
+}
 
 /* ============================================================
    Page info (info.html) — autonome, bloc >=75 %, coin cassé
@@ -342,7 +350,7 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
   right: 56px;
   bottom: 32px;
   display: flex;
-  align-items: center;
+  align-items: flex-end;          /* aligné par le bas, pas centré */
   justify-content: space-between;
 }
 .info-links { display: flex; gap: 32px; }
@@ -364,40 +372,31 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
 .home {
   position: relative;
   min-height: 100vh;
-  display: grid;
-  grid-template-columns: minmax(320px, 1fr) auto;
-  grid-template-rows: auto 1fr auto;
-  column-gap: 48px;
-  row-gap: 28px;
   padding: 48px 56px 96px;       /* bas réservé à la barre commune */
 }
 .home-logo {
-  grid-column: 1;
-  grid-row: 1;
   font-size: 72px;
-  align-self: start;
 }
 
-/* Galerie : images 16:9 sur 3 lignes, en briques (décalage 1/2), à droite */
+/* Galerie : images 16:9 sur 3 lignes en briques, à droite, ~76 % de la hauteur */
 .home-gallery {
-  --card-w: 17vw;
-  grid-column: 2;
-  grid-row: 1 / 4;
-  align-self: start;
-  justify-self: end;
+  --card-h: 24vh;
+  position: absolute;
+  top: 132px;
+  right: 56px;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 .gallery-row { display: flex; gap: 16px; }
-.gallery-row:nth-child(even) { margin-left: calc(var(--card-w) / 2); } /* brique */
+.gallery-row:nth-child(even) { margin-left: calc(var(--card-h) * 16 / 9 / 2); } /* brique */
 
 /* --cut : coin bas-DROITE cassé ; le wrapper vert fait office de bordure */
 .frame {
   --cut: 20px;
   position: relative;
-  width: var(--card-w);
-  aspect-ratio: 16 / 9;
+  height: var(--card-h);
+  width: calc(var(--card-h) * 16 / 9);
   background: var(--g3);
   clip-path: polygon(
     0 0, 100% 0,
@@ -420,33 +419,33 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
     0 100%
   );
   filter: grayscale(1) brightness(0.9) sepia(1) hue-rotate(60deg) saturate(2.4);
-  transition: transform 0.18s, filter 0.18s;
+  transition: filter 0.18s;
 }
+/* hover : pas de zoom, seulement la luminosité (le contour reste visible) */
 .frame:hover img {
-  transform: scale(1.05);
-  filter: grayscale(1) brightness(1.05) sepia(1) hue-rotate(60deg) saturate(2.8);
+  filter: grayscale(1) brightness(1.15) sepia(1) hue-rotate(60deg) saturate(2.8);
 }
 /* mode SEXY : teinte rouge sur les photos */
 [data-theme='sexy'] .frame img {
   filter: grayscale(1) brightness(0.9) sepia(1) hue-rotate(-30deg) saturate(4);
 }
 [data-theme='sexy'] .frame:hover img {
-  filter: grayscale(1) brightness(1.05) sepia(1) hue-rotate(-30deg) saturate(4.6);
+  filter: grayscale(1) brightness(1.2) sepia(1) hue-rotate(-30deg) saturate(4.6);
 }
 .home-tagline {
-  grid-column: 1;
-  grid-row: 2;
-  align-self: end;
-  max-width: 320px;
+  position: absolute;
+  left: 56px;
+  bottom: 150px;
+  max-width: 260px;
   color: var(--g3);
   font-weight: 500;
 }
 .home-tagline strong { color: var(--g3); }
 
 .home-actions {
-  grid-column: 1;
-  grid-row: 3;
-  align-self: end;
+  position: absolute;
+  left: 56px;
+  bottom: 80px;
 }
 
 /* ---- Barre du bas commune (même niveau / style sur chaque page) ---- */
@@ -483,8 +482,8 @@ p { font-size: 16px; font-weight: 400; line-height: 1.4; }
 .start-link::before {
   content: '';
   position: absolute;
-  inset: 6px;
-  background: var(--g3);          /* fond */
+  inset: 4px;
+  background: var(--g3);          /* fond — bande foncée 2px = rim */
   pointer-events: none;
   transition: background 0.12s;
 }

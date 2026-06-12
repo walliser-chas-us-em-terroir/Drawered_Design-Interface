@@ -42,7 +42,8 @@ Habillage tiré du fichier Figma (`instructions-2.md` → `instructions-5.md`) :
 - **Tab-bar de thème** (page Info) : pastille active à double contour qui **glisse** entre
   Light / Dark / Sexy, hover en vert moyen.
 - **Galerie d'accueil** : images **16:9** sur **3 lignes en briques** (décalage ½), **coin cassé
-  à droite** avec bordure verte suivant tout le contour (wrapper `.frame`).
+  à droite** avec bordure verte suivant tout le contour (wrapper `.frame`) ; occupe ~75 % de la
+  hauteur, survol = hausse de luminosité (sans zoom, contour conservé).
 - **Barre du bas** alignée au **même niveau** et même style sur les 3 pages.
 - **Page Info** pleine page, sans bordure ni coin cassé ; paragraphes décalés à droite.
 - **Polices** : `Elliot Swonger` (logo, `elliot_swonger.TTF`) + `Maven Pro` (Google Fonts).
